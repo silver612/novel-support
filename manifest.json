@@ -1,0 +1,14 @@
+{
+    "name" : "Novel update checker",
+    "version" : "1.0",
+    "manifest_version" : 3,
+    "permissions" : [],
+    "host_permissions" : ["https://www.wlnupdates.com/api"],
+    "background" : {
+        "service_worker" : "background.js"
+    },
+    "action" :{
+        "default_title" : "Novel Updates",
+        "default_popup" : "popup.html"
+    }
+}
