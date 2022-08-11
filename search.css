@@ -1,4 +1,17 @@
+#search{
+    display: flex;
+    flex-wrap: wrap;
+}
+
+#searching{
+    width: 100%;
+    height: 100px;
+}
 
 #search-results{
     width: 400px;
+}
+
+#details-panel{
+    width: 600px;
 }
