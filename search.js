@@ -16,6 +16,7 @@ async function searchNovel(novelTitle){
 
     try{
         const results = document.getElementById("search-results");
+        results.innerHTML = "";
 
         const response = await fetch(wlnAPI, params)
         .then(res=>res.json())
@@ -113,26 +114,45 @@ async function getNovelDetails(sid){
 }
 
 function trackNovel(sid){
-    chrome.runtime.sendMessage({
-        msg : "Track novel",
-        data: {
-            sid: sid
-        }
-    });
+    try{
+        chrome.storage.sync.get("trackedIds", async function(items){
+            if(items.trackedIds["" + sid]!=undefined)
+            {
+                console.log("Already being tracked");
+                return;
+            }
+            items.trackedIds["" + sid] = {
+                title: "",
+                lastPub: "",
+                status: ""
+            };
+            chrome.storage.sync.set({"trackedIds" : items.trackedIds}, async function(){
+                console.log("Added to tracked ", "" + sid);
+            });
+        });
+    }
+    catch(e){
+        console.error("Error: ", e);
+    }
 }
 
 function untrackNovel(sid){
-    chrome.storage.sync.get("trackedIds", async function(items){
-        if(items.trackedIds["" + sid]==undefined)
-        {
-            console.log("Novel not being tracked");
-            return;
-        }
-        items.trackedIds["" + sid] = undefined;
-        chrome.storage.sync.set({"trackedIds" : items.trackedIds}, async function(){
-            console.log("Removed from tracked ", "" + sid);
+    try{
+            chrome.storage.sync.get("trackedIds", async function(items){
+            if(items.trackedIds["" + sid]==undefined)
+            {
+                console.log("Novel not being tracked");
+                return;
+            }
+            items.trackedIds["" + sid] = undefined;
+            chrome.storage.sync.set({"trackedIds" : items.trackedIds}, async function(){
+                console.log("Removed from tracked ", "" + sid);
+            });
         });
-    });
+    }
+    catch(e){
+        console.error("Error: ", e);
+    }
 }
 
 document.getElementById("query").addEventListener("click", async function(){

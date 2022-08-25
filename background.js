@@ -9,31 +9,7 @@ chrome.runtime.onInstalled.addListener(async function(){
 
 chrome.runtime.onMessage.addListener(
     function(request, sender, sendResponse){
-        if(request.msg == "Track novel"){
-            try{
-                chrome.storage.sync.get("trackedIds", async function(items){
-                    if(items.trackedIds["" + request.data.sid]!=undefined)
-                    {
-                        console.log("Already being tracked");
-                        return;
-                    }
-                    items.trackedIds["" + request.data.sid] = {
-                        title: "",
-                        lastPub: "",
-                        status: ""
-                    };
-                    console.log(items.trackedIds, typeof(items.trackedIds));
-                    chrome.storage.sync.set({"trackedIds" : items.trackedIds}, async function(){
-                        console.log("Added to tracked ", "" + request.data.sid);
-                    });
-                });
-            }
-            catch(e){
-                console.log("Error: ", e);
-            }
-            return;
-        }
-        else if(request.msg == "Get Tracked Novels"){
+        if(request.msg == "Get Tracked Novels"){
             try{
                 chrome.storage.sync.get("trackedIds", async function(items){
                     console.log(items.trackedIds, typeof(items.trackedIds));
@@ -57,7 +33,6 @@ chrome.runtime.onMessage.addListener(
                             .then(res=>res.json())
                             .catch(error=>console.log("Error: ", error.message || "Some error occured"));
                         
-                        // add code to get name, last published, etc. to implement tracking 
                         var info;
                         if(!(items.trackedIds[element].title=="" || items.trackedIds[element].lastPub != response.data.latest_published))
                             info = items.trackedIds[element];
