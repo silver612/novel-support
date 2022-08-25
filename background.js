@@ -40,6 +40,8 @@ chrome.runtime.onMessage.addListener(
                     var infoArr = new Object();
                     for(const element in items.trackedIds)
                     {
+                        if(items.trackedIds[element]==undefined)
+                            continue;
                         const Data = {
                             "id" : element,
                             "mode" : "get-series-id"

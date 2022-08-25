@@ -21,24 +21,40 @@ async function searchNovel(novelTitle){
         .then(res=>res.json())
         .catch(error=>console.log("Error: ", error.message || "Some error occured"));
         
-        for(const element of response.data.results)
-        {
-            const result = document.createElement("div");
-            result.innerHTML = "<div id = \""+ element.sid + "\">" + element.match[0][1] + "</div>"
-                            + "<button id=\"Track" + element.sid + "\"> Details </button>"
-                            + "<button id=\"Detail" + element.sid + "\"> Track </button>";
-            results.appendChild(result);
-            document.getElementById("Track" + element.sid).addEventListener('click', function(sid){
-                return function(){
-                    getNovelDetails(sid);
+        chrome.runtime.sendMessage({msg: 'Get Tracked Novels'}, async function(items){
+            for(const element of response.data.results)
+            {
+                const result = document.createElement("div");
+                result.innerHTML = "<div id = \""+ element.sid + "\">" + element.match[0][1] + "</div>"
+                                + "<button id=\"Detail" + element.sid + "\"> Details </button>";
+                if(element.sid in items)
+                {
+                    result.innerHTML += "<button id=\"Untrack" + element.sid + "\"> Untrack </button>";
+                    results.appendChild(result);
+                    document.getElementById("Untrack" + element.sid).addEventListener('click', function(sid){
+                        return function(){
+                            untrackNovel(sid);
+                        }
+                    } (element.sid));
                 }
-            } (element.sid));
-            document.getElementById("Detail" + element.sid).addEventListener('click', function(sid){
-                return function(){
-                    trackNovel(sid);
+                else
+                {
+                    result.innerHTML += "<button id=\"Track" + element.sid + "\"> Track </button>";
+                    results.appendChild(result);
+                    document.getElementById("Track" + element.sid).addEventListener('click', function(sid){
+                        return function(){
+                            trackNovel(sid);
+                        }
+                    } (element.sid));
                 }
-            }(element.sid));
-        }
+
+                document.getElementById("Detail" + element.sid).addEventListener('click', function(sid){
+                    return function(){
+                        getNovelDetails(sid);
+                    }
+                } (element.sid));
+            }
+        });
     }
     catch(e){
         console.log("Error: ", e);
@@ -101,6 +117,26 @@ function trackNovel(sid){
         data: {
             sid: sid
         }
+    });
+}
+
+function untrackNovel(sid){
+    // chrome.runtime.sendMessage({
+    //     msg : "Untrack novel",
+    //     data: {
+    //         sid: sid
+    //     }
+    // });
+    chrome.storage.sync.get("trackedIds", async function(items){
+        if(items.trackedIds["" + sid]==undefined)
+        {
+            console.log("Novel not being tracked");
+            return;
+        }
+        items.trackedIds["" + sid] = undefined;
+        chrome.storage.sync.set({"trackedIds" : items.trackedIds}, async function(){
+            console.log("Removed from tracked ", "" + sid);
+        });
     });
 }
 
