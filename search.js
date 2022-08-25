@@ -25,6 +25,7 @@ async function searchNovel(novelTitle){
             for(const element of response.data.results)
             {
                 const result = document.createElement("div");
+                result.className = "search-element";
                 result.innerHTML = "<div id = \""+ element.sid + "\">" + element.match[0][1] + "</div>"
                                 + "<button id=\"Detail" + element.sid + "\"> Details </button>";
                 if(element.sid in items)
@@ -121,12 +122,6 @@ function trackNovel(sid){
 }
 
 function untrackNovel(sid){
-    // chrome.runtime.sendMessage({
-    //     msg : "Untrack novel",
-    //     data: {
-    //         sid: sid
-    //     }
-    // });
     chrome.storage.sync.get("trackedIds", async function(items){
         if(items.trackedIds["" + sid]==undefined)
         {
